@@ -7,8 +7,7 @@ const imageWrap = document.querySelector('.detail-image-wrap');
 const closeButton = document.querySelector('.modal-close');
 const productGrid = document.querySelector('.product-grid');
 let opener;
-
-const formatPrice = price => `₹${Number(price).toLocaleString('en-IN')}`;
+const formatPrice = price => `$${Number(price).toLocaleString('en-US')}`;
 
 function addProductCardInteractions(card) {
   card.addEventListener('click', event => { if (!event.target.closest('.heart')) openProduct(card); });
