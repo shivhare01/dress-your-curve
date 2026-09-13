@@ -1,12 +1,3 @@
-const descriptions = {
-  'Rang mirror-work vest': 'A statement men’s vest alive with hand-applied mirror work and colourful geometric embroidery. Wear it over a simple kurta for a celebration-ready layer that does all the talking.',
-  'Neel embroidered vest': 'A royal-blue vest with fine gold motifs and a vibrant embroidered placket. Its polished silhouette brings a festive finish to kurta-pajama sets and occasion dressing.',
-  'Meher mirror-work lehenga set': 'A rich maroon lehenga set detailed with glimmering gold lines, a fitted blouse and a matching drape. A graceful choice for sangeet nights, weddings and festive gatherings.',
-  'Noor contrast lehenga set': 'A dramatic black-and-crimson lehenga with ornate borders and a statement dupatta. The contrasting panels create movement and make this set feel instantly celebratory.',
-  'Rani black-and-gold lehenga': 'A timeless black lehenga brought to life with gold detailing, bold circular accents and a crimson dupatta. Designed to feel elegant, comfortable and memorable.',
-  'Neel mustard tassel lehenga': 'A jewel-blue lehenga with a sunny mustard border, shell tassels and a flowing dupatta. The playful contrast makes it a beautiful choice for daytime festivities.'
-};
-
 const modal = document.querySelector('#product-modal');
 const detailImage = document.querySelector('#detail-image');
 const detailName = document.querySelector('#detail-name');
@@ -14,7 +5,74 @@ const detailPrice = document.querySelector('#detail-price');
 const detailDescription = document.querySelector('#detail-description');
 const imageWrap = document.querySelector('.detail-image-wrap');
 const closeButton = document.querySelector('.modal-close');
+const productGrid = document.querySelector('.product-grid');
 let opener;
+
+const formatPrice = price => `₹${Number(price).toLocaleString('en-IN')}`;
+
+function addProductCardInteractions(card) {
+  card.addEventListener('click', event => { if (!event.target.closest('.heart')) openProduct(card); });
+  card.addEventListener('keydown', event => {
+    if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProduct(card); }
+  });
+  card.querySelector('.heart').addEventListener('click', event => {
+    event.stopPropagation();
+    event.currentTarget.textContent = event.currentTarget.textContent === '♡' ? '♥' : '♡';
+  });
+}
+
+function createProductCard(product) {
+  const card = document.createElement('article');
+  card.tabIndex = 0;
+  card.setAttribute('role', 'button');
+  card.setAttribute('aria-label', `View details for ${product.name}`);
+  card.dataset.description = product.description || '';
+  card.dataset.stripeLink = product.stripe_checkout_url || '';
+
+  const imageBox = document.createElement('div');
+  imageBox.className = 'product-image';
+  if (product.label) {
+    const label = document.createElement('span');
+    label.textContent = product.label;
+    imageBox.append(label);
+  }
+  const heart = document.createElement('button');
+  heart.className = 'heart';
+  heart.type = 'button';
+  heart.setAttribute('aria-label', `Save ${product.name}`);
+  heart.textContent = '♡';
+  const image = document.createElement('img');
+  image.src = product.image;
+  image.alt = product.alt || product.name;
+  image.loading = 'lazy';
+  imageBox.append(heart, image);
+
+  const name = document.createElement('h3');
+  name.textContent = product.name;
+  const price = document.createElement('p');
+  price.textContent = formatPrice(product.price);
+  const category = document.createElement('p');
+  category.className = 'product-type';
+  category.textContent = product.category || 'Celebration edit';
+  const swatches = document.createElement('div');
+  swatches.className = 'swatches';
+  for (let i = 0; i < 3; i += 1) swatches.append(document.createElement('i'));
+  card.append(imageBox, name, price, category, swatches);
+  addProductCardInteractions(card);
+  return card;
+}
+
+async function loadCatalog() {
+  try {
+    const response = await fetch('products.json', { cache: 'no-store' });
+    if (!response.ok) throw new Error('Catalog could not be loaded');
+    const products = await response.json();
+    const visibleProducts = products.filter(product => product.visible !== false);
+    productGrid.replaceChildren(...visibleProducts.map(createProductCard));
+  } catch (error) {
+    productGrid.innerHTML = '<p class="catalog-status">The collection is temporarily unavailable. Please refresh the page.</p>';
+  }
+}
 
 function openProduct(card) {
   const image = card.querySelector('img');
@@ -23,7 +81,7 @@ function openProduct(card) {
   detailImage.alt = image.alt;
   detailName.textContent = name;
   detailPrice.textContent = card.querySelector('p').textContent;
-  detailDescription.textContent = descriptions[name] || 'A thoughtfully crafted occasionwear piece, designed for comfort, confidence and celebration.';
+  detailDescription.textContent = card.dataset.description || 'A thoughtfully crafted occasionwear piece, designed for comfort, confidence and celebration.';
   opener = card;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -39,19 +97,6 @@ function closeProduct() {
   detailImage.style.transformOrigin = 'center';
   opener?.focus();
 }
-
-document.querySelectorAll('.product-grid article').forEach(card => {
-  card.tabIndex = 0;
-  card.setAttribute('role', 'button');
-  card.setAttribute('aria-label', `View details for ${card.querySelector('h3').textContent}`);
-  card.addEventListener('click', event => { if (!event.target.closest('.heart')) openProduct(card); });
-  card.addEventListener('keydown', event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); openProduct(card); } });
-});
-
-document.querySelectorAll('.heart').forEach(button => button.addEventListener('click', event => {
-  event.stopPropagation();
-  button.textContent = button.textContent === '♡' ? '♥' : '♡';
-}));
 
 closeButton.addEventListener('click', closeProduct);
 document.addEventListener('keydown', event => { if (event.key === 'Escape' && modal.classList.contains('open')) closeProduct(); });
@@ -77,6 +122,11 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
 }));
 document.querySelector('.checkout-button').addEventListener('click', () => {
   const selected = document.querySelector('.method.selected')?.dataset.payment;
+  const stripeLink = opener?.dataset.stripeLink;
+  if (selected === 'stripe' && /^https:\/\/checkout\.stripe\.com\//.test(stripeLink || '')) {
+    window.location.assign(stripeLink);
+    return;
+  }
   document.querySelector('.checkout-message').textContent = selected === 'zelle'
     ? 'Zelle payment instructions will appear here once the business Zelle address is connected.'
     : 'Secure Stripe checkout will open here once this product has a Stripe Payment Link.';
@@ -87,3 +137,5 @@ document.querySelector('.newsletter form').addEventListener('submit', event => {
   const button = event.currentTarget.querySelector('button');
   button.innerHTML = 'You’re on the list <span>✓</span>';
 });
+
+loadCatalog();
