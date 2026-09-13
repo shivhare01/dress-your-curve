@@ -123,7 +123,7 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
 document.querySelector('.checkout-button').addEventListener('click', () => {
   const selected = document.querySelector('.method.selected')?.dataset.payment;
   const stripeLink = opener?.dataset.stripeLink;
-  if (selected === 'stripe' && /^https:\/\/checkout\.stripe\.com\//.test(stripeLink || '')) {
+  if (selected === 'stripe' && /^https:\/\/(?:buy|checkout)\.stripe\.com\//.test(stripeLink || '')) {
     window.location.assign(stripeLink);
     return;
   }
