@@ -8,7 +8,7 @@ content:
   - name: products
     label: Product catalogue
     type: file
-    path: content/products.json
+    path: products.json
     format: json
     list: true
     operations:
