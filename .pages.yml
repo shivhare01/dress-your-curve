@@ -1,0 +1,64 @@
+media:
+  input: assets
+  output: /assets
+  rename: safe
+  categories: [image]
+
+content:
+  - name: products
+    label: Product catalogue
+    type: file
+    path: content/products.json
+    format: json
+    list: true
+    operations:
+      delete: false
+    fields:
+      - name: name
+        label: Product name
+        type: string
+        required: true
+      - name: price
+        label: Price (₹)
+        type: number
+        required: true
+        description: Enter numbers only, for example 3290.
+      - name: category
+        label: Category
+        type: string
+        required: true
+        description: For example, Lehenga set or Men's festive vest.
+      - name: label
+        label: Small label on photo
+        type: string
+        description: Examples: New, Best seller, Limited edition.
+      - name: image
+        label: Product photo
+        type: image
+        required: true
+        options:
+          extensions: [jpg, jpeg, png, webp]
+          rename: safe
+      - name: alt
+        label: Photo description
+        type: string
+        required: true
+        description: Briefly describe the garment and mannequin for accessibility.
+      - name: description
+        label: Product description
+        type: text
+        required: true
+      - name: stripe_checkout_url
+        label: Stripe Payment Link
+        type: string
+        description: Leave blank until you create this product's Stripe Payment Link.
+      - name: visible
+        label: Show this item on the website
+        type: boolean
+        required: true
+
+settings:
+  commit:
+    templates:
+      create: "Add {filename}"
+      update: "Update {filename}"
