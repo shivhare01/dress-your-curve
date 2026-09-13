@@ -76,7 +76,10 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
   method.classList.add('selected');
 }));
 document.querySelector('.checkout-button').addEventListener('click', () => {
-  document.querySelector('.checkout-message').textContent = 'Checkout is ready to connect to your payment provider.';
+  const selected = document.querySelector('.method.selected')?.dataset.payment;
+  document.querySelector('.checkout-message').textContent = selected === 'zelle'
+    ? 'Zelle payment instructions will appear here once the business Zelle address is connected.'
+    : 'Secure Stripe checkout will open here once this product has a Stripe Payment Link.';
 });
 
 document.querySelector('.newsletter form').addEventListener('submit', event => {
