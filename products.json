@@ -1,13 +1,12 @@
 [
   {
     "name": "Rang mirror-work vest",
-    "price": 3290,
+    "price": 15,
     "category": "Men's festive vest",
     "label": "New",
     "image": "/assets/mirror-work-vest.png",
     "alt": "Multicolour mirror-work men's vest on mannequin",
     "description": "A statement men's vest alive with hand-applied mirror work and colourful geometric embroidery. Wear it over a simple kurta for a celebration-ready layer that does all the talking.",
-    "stripe_checkout_url": "",
     "visible": true
   },
   {
@@ -18,7 +17,6 @@
     "image": "/assets/royal-blue-vest.png",
     "alt": "Royal blue embroidered men's vest on mannequin",
     "description": "A royal-blue vest with fine gold motifs and a vibrant embroidered placket. Its polished silhouette brings a festive finish to kurta-pajama sets and occasion dressing.",
-    "stripe_checkout_url": "",
     "visible": true
   },
   {
@@ -29,7 +27,6 @@
     "image": "/assets/maroon-lehenga.png",
     "alt": "Maroon lehenga set with gold embroidery",
     "description": "A rich maroon lehenga set detailed with glimmering gold lines, a fitted blouse and a matching drape. A graceful choice for sangeet nights, weddings and festive gatherings.",
-    "stripe_checkout_url": "",
     "visible": true
   },
   {
@@ -40,7 +37,6 @@
     "image": "/assets/black-red-lehenga.png",
     "alt": "Black and red lehenga set with gold embroidery",
     "description": "A dramatic black-and-crimson lehenga with ornate borders and a statement dupatta. The contrasting panels create movement and make this set feel instantly celebratory.",
-    "stripe_checkout_url": "",
     "visible": true
   },
   {
@@ -51,7 +47,6 @@
     "image": "/assets/black-gold-lehenga.png",
     "alt": "Black lehenga set with gold details and red dupatta",
     "description": "A timeless black lehenga brought to life with gold detailing, bold circular accents and a crimson dupatta. Designed to feel elegant, comfortable and memorable.",
-    "stripe_checkout_url": "",
     "visible": true
   },
   {
@@ -62,7 +57,6 @@
     "image": "/assets/neel-mustard-lehenga.png",
     "alt": "Blue and mustard lehenga set on mannequin",
     "description": "A jewel-blue lehenga with a sunny mustard border, shell tassels and a flowing dupatta. The playful contrast makes it a beautiful choice for daytime festivities.",
-    "stripe_checkout_url": "",
     "visible": true
   }
 ]
