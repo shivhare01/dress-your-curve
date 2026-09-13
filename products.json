@@ -58,5 +58,23 @@
     "alt": "Blue and mustard lehenga set on mannequin",
     "description": "A jewel-blue lehenga with a sunny mustard border, shell tassels and a flowing dupatta. The playful contrast makes it a beautiful choice for daytime festivities.",
     "visible": true
+  },
+  {
+    "name": "Test1",
+    "price": 5000,
+    "category": "Women",
+    "image": "/assets/whatsapp-image-2026-09-13-at-85224-am-1.jpeg",
+    "alt": "women ethnic",
+    "description": "great lehenga",
+    "visible": false
+  },
+  {
+    "name": "test2",
+    "price": 6000,
+    "category": "women",
+    "image": "/assets/whatsapp-image-2026-09-13-at-85224-am.jpeg",
+    "alt": "ethnic wear",
+    "description": "test",
+    "visible": false
   }
 ]
