@@ -66,7 +66,7 @@
     "image": "/assets/whatsapp-image-2026-09-13-at-85224-am-1.jpeg",
     "alt": "women ethnic",
     "description": "great lehenga",
-    "visible": false
+    "visible": true
   },
   {
     "name": "test2",
@@ -75,6 +75,6 @@
     "image": "/assets/whatsapp-image-2026-09-13-at-85224-am.jpeg",
     "alt": "ethnic wear",
     "description": "test",
-    "visible": false
+    "visible": true
   }
 ]
