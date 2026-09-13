@@ -31,7 +31,7 @@ content:
       - name: label
         label: Small label on photo
         type: string
-        description: Examples: New, Best seller, Limited edition.
+        description: "Examples: New, Best seller, Limited edition."
       - name: image
         label: Product photo
         type: image
