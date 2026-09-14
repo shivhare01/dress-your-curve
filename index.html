@@ -12,7 +12,7 @@
   <style>.product-grid .product-type{margin-top:5px;color:#756b61;font-size:10px;text-transform:uppercase;letter-spacing:.06em}.catalog-status{grid-column:1/-1;margin:0;padding:35px 0;color:#756b61;font-size:12px}</style>
 </head>
 <body>
-  <div class="announcement">Complimentary shipping on orders over ₹2,500 <span>✦</span> Made for every celebration</div>
+  <div class="announcement">Complimentary shipping on orders over $2,500 <span>✦</span> Made for every celebration</div>
   <header>
     <a class="brand" href="#top" aria-label="Dress Your Curve home">DRESS <em>your</em> CURVE</a>
     <button class="menu" aria-label="Open menu">☰</button>
@@ -63,10 +63,11 @@
     <div class="detail-copy">
       <p class="eyebrow">The celebration edit</p><h2 id="detail-name"></h2><p class="detail-price" id="detail-price"></p><p class="detail-description" id="detail-description"></p>
       <div class="detail-meta"><span>Hand-finished details</span><span>Inclusive sizing</span><span>Easy returns</span></div>
-      <div class="detail-payment"><p class="eyebrow">Choose a payment method</p><div class="detail-methods"><button class="method selected" type="button" data-payment="stripe">Secure card checkout <small>Stripe · cards, Apple Pay & Google Pay</small></button><button class="method" type="button" data-payment="zelle">Pay by Zelle <small>US bank transfer · business details coming soon</small></button></div><p class="payment-note">Secure checkout will be activated when the store’s Stripe links and Zelle business details are connected.</p></div>
-      <button class="button checkout-button" type="button">Checkout coming soon <span>→</span></button><p class="checkout-message" aria-live="polite"></p>
+      <div class="detail-payment"><p class="eyebrow">Choose a payment method</p><div class="detail-methods"><button class="method selected" type="button" data-payment="stripe">Secure card checkout <small>Stripe · cards, Apple Pay & Google Pay</small></button><button class="method" type="button" data-payment="zelle">Pay by Zelle <small>US bank transfer · business details coming soon</small></button></div><p class="payment-note">Card payments are securely handled by Stripe. Your delivery address is collected at checkout.</p></div>
+      <button class="button checkout-button" type="button">Secure checkout <span>→</span></button><p class="checkout-message" aria-live="polite"></p>
     </div>
   </div>
+  <script src="checkout-config.js"></script>
   <script src="script.js"></script>
 </body>
 </html>

@@ -7,6 +7,7 @@ const imageWrap = document.querySelector('.detail-image-wrap');
 const closeButton = document.querySelector('.modal-close');
 const productGrid = document.querySelector('.product-grid');
 let opener;
+
 const formatPrice = price => `$${Number(price).toLocaleString('en-US')}`;
 
 function addProductCardInteractions(card) {
@@ -26,7 +27,7 @@ function createProductCard(product) {
   card.setAttribute('role', 'button');
   card.setAttribute('aria-label', `View details for ${product.name}`);
   card.dataset.description = product.description || '';
-  card.dataset.stripeLink = product.stripe_checkout_url || '';
+  card.dataset.productName = product.name;
 
   const imageBox = document.createElement('div');
   imageBox.className = 'product-image';
@@ -119,11 +120,39 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
   document.querySelectorAll('.method').forEach(item => item.classList.remove('selected'));
   method.classList.add('selected');
 }));
+async function beginStripeCheckout() {
+  const checkoutMessage = document.querySelector('.checkout-message');
+  const checkoutButton = document.querySelector('.checkout-button');
+  const checkoutApi = window.DRESS_YOUR_CURVE_CHECKOUT_API;
+
+  if (!checkoutApi || !opener?.dataset.productName) {
+    checkoutMessage.textContent = 'Secure checkout is being connected. Please try again shortly.';
+    return;
+  }
+
+  checkoutButton.disabled = true;
+  checkoutButton.innerHTML = 'Opening secure checkout <span>…</span>';
+  checkoutMessage.textContent = '';
+  try {
+    const response = await fetch(checkoutApi, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productName: opener.dataset.productName, quantity: 1 })
+    });
+    const result = await response.json();
+    if (!response.ok || !result.url) throw new Error(result.error || 'Checkout could not be started.');
+    window.location.assign(result.url);
+  } catch (error) {
+    checkoutMessage.textContent = error.message || 'Checkout could not be started. Please try again.';
+    checkoutButton.disabled = false;
+    checkoutButton.innerHTML = 'Secure checkout <span>→</span>';
+  }
+}
+
 document.querySelector('.checkout-button').addEventListener('click', () => {
   const selected = document.querySelector('.method.selected')?.dataset.payment;
-  const stripeLink = opener?.dataset.stripeLink;
-  if (selected === 'stripe' && /^https:\/\/(?:buy|checkout)\.stripe\.com\//.test(stripeLink || '')) {
-    window.location.assign(stripeLink);
+  if (selected === 'stripe') {
+    beginStripeCheckout();
     return;
   }
   document.querySelector('.checkout-message').textContent = selected === 'zelle'
