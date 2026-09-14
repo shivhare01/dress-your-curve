@@ -23,6 +23,7 @@ const menuButton = document.querySelector('.menu');
 const siteNav = document.querySelector('#site-nav');
 let opener;
 let bag = JSON.parse(localStorage.getItem('sakhi-mohini-bag') || '[]');
+let catalogue = [];
 
 menuButton?.addEventListener('click', () => {
   const isOpen = document.body.classList.toggle('menu-open');
@@ -95,13 +96,22 @@ async function loadCatalog() {
   try {
     const response = await fetch('products.json', { cache: 'no-store' });
     if (!response.ok) throw new Error('Catalog could not be loaded');
-    const products = await response.json();
-    const visibleProducts = products.filter(product => product.visible !== false);
-    productGrid.replaceChildren(...visibleProducts.map(createProductCard));
+    catalogue = await response.json();
+    renderCatalog();
   } catch (error) {
     productGrid.innerHTML = '<p class="catalog-status">The collection is temporarily unavailable. Please refresh the page.</p>';
   }
 }
+
+function renderCatalog(category = 'all') {
+  const visibleProducts = catalogue.filter(product => product.visible !== false && (category === 'all' || String(product.category || '').toUpperCase() === category));
+  productGrid.replaceChildren(...visibleProducts.map(createProductCard));
+  if (!visibleProducts.length) productGrid.innerHTML = '<p class="catalog-status">More pieces are arriving soon. Please view all pieces for the full collection.</p>';
+}
+
+document.querySelectorAll('[data-category]').forEach(link => link.addEventListener('click', () => {
+  renderCatalog(link.dataset.category);
+}));
 
 function openProduct(card) {
   const image = card.querySelector('img');
@@ -260,10 +270,26 @@ bagButton?.addEventListener('click', openBag);
 bagClose?.addEventListener('click', closeBag);
 bagBackdrop?.addEventListener('click', closeBag);
 
-document.querySelector('.newsletter form').addEventListener('submit', event => {
+document.querySelector('#newsletter-form').addEventListener('submit', event => {
   event.preventDefault();
   const button = event.currentTarget.querySelector('button');
-  button.innerHTML = 'You’re on the list <span>✓</span>';
+  const email = event.currentTarget.querySelector('input').value.trim();
+  if (!email) return;
+  localStorage.setItem('sakhi-mohini-newsletter-email', email);
+  button.innerHTML = 'Code unlocked <span>✓</span>';
+  document.querySelector('.newsletter-message').textContent = 'Welcome! Use code SAKHI10 at secure Stripe checkout for 10% off your first order.';
+});
+
+document.querySelector('#contact-form').addEventListener('submit', event => {
+  event.preventDefault();
+  const form = event.currentTarget;
+  const name = form.elements.name.value.trim();
+  const email = form.elements.email.value.trim();
+  const message = form.elements.message.value.trim();
+  const subject = encodeURIComponent(`Website question from ${name}`);
+  const body = encodeURIComponent(`Name: ${name}\nEmail: ${email}\n\n${message}`);
+  document.querySelector('.contact-message').textContent = 'Your email app is opening with your message ready to send.';
+  window.location.href = `mailto:riteshmegha2013@gmail.com?subject=${subject}&body=${body}`;
 });
 
 loadCatalog();
