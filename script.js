@@ -6,6 +6,10 @@ const detailDescription = document.querySelector('#detail-description');
 const imageWrap = document.querySelector('.detail-image-wrap');
 const closeButton = document.querySelector('.modal-close');
 const productGrid = document.querySelector('.product-grid');
+const checkoutButton = document.querySelector('.checkout-button');
+const checkoutMessage = document.querySelector('.checkout-message');
+const zellePanel = document.querySelector('.zelle-panel');
+const zelleProductName = document.querySelector('#zelle-product-name');
 let opener;
 
 const formatPrice = price => `$${Number(price).toLocaleString('en-US')}`;
@@ -82,6 +86,8 @@ function openProduct(card) {
   detailName.textContent = name;
   detailPrice.textContent = card.querySelector('p').textContent;
   detailDescription.textContent = card.dataset.description || 'A thoughtfully crafted occasionwear piece, designed for comfort, confidence and celebration.';
+  zelleProductName.textContent = name;
+  selectPaymentMethod('stripe');
   opener = card;
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
@@ -116,13 +122,21 @@ imageWrap.addEventListener('pointerdown', event => {
 imageWrap.addEventListener('pointermove', event => { if (imageWrap.classList.contains('zooming')) updateZoom(event); });
 ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => imageWrap.addEventListener(type, () => imageWrap.classList.remove('zooming')));
 
-document.querySelectorAll('.method').forEach(method => method.addEventListener('click', () => {
+function selectPaymentMethod(payment) {
   document.querySelectorAll('.method').forEach(item => item.classList.remove('selected'));
-  method.classList.add('selected');
+  document.querySelector(`.method[data-payment="${payment}"]`)?.classList.add('selected');
+  const isZelle = payment === 'zelle';
+  zellePanel.hidden = !isZelle;
+  checkoutButton.hidden = isZelle;
+  checkoutMessage.textContent = isZelle
+    ? 'Use the QR code in your Zelle-enabled bank app. Payments are verified manually.'
+    : '';
+}
+
+document.querySelectorAll('.method').forEach(method => method.addEventListener('click', () => {
+  selectPaymentMethod(method.dataset.payment);
 }));
 async function beginStripeCheckout() {
-  const checkoutMessage = document.querySelector('.checkout-message');
-  const checkoutButton = document.querySelector('.checkout-button');
   const checkoutApi = window.DRESS_YOUR_CURVE_CHECKOUT_API;
 
   if (!checkoutApi || !opener?.dataset.productName) {
@@ -155,9 +169,9 @@ document.querySelector('.checkout-button').addEventListener('click', () => {
     beginStripeCheckout();
     return;
   }
-  document.querySelector('.checkout-message').textContent = selected === 'zelle'
-    ? 'Zelle payment instructions will appear here once the business Zelle address is connected.'
-    : 'Secure Stripe checkout will open here once this product has a Stripe Payment Link.';
+  checkoutMessage.textContent = selected === 'zelle'
+    ? 'Use the QR code in your Zelle-enabled bank app. Payments are verified manually.'
+    : 'Secure Stripe checkout is unavailable. Please try again shortly.';
 });
 
 document.querySelector('.newsletter form').addEventListener('submit', event => {
