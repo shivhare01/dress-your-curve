@@ -10,7 +10,22 @@ const checkoutButton = document.querySelector('.checkout-button');
 const checkoutMessage = document.querySelector('.checkout-message');
 const zellePanel = document.querySelector('.zelle-panel');
 const zelleProductName = document.querySelector('#zelle-product-name');
+const menuButton = document.querySelector('.menu');
+const siteNav = document.querySelector('#site-nav');
 let opener;
+
+menuButton?.addEventListener('click', () => {
+  const isOpen = document.body.classList.toggle('menu-open');
+  menuButton.setAttribute('aria-expanded', String(isOpen));
+  menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
+  menuButton.textContent = isOpen ? '×' : '☰';
+});
+siteNav?.querySelectorAll('a').forEach(link => link.addEventListener('click', () => {
+  document.body.classList.remove('menu-open');
+  menuButton?.setAttribute('aria-expanded', 'false');
+  menuButton?.setAttribute('aria-label', 'Open menu');
+  if (menuButton) menuButton.textContent = '☰';
+}));
 
 const formatPrice = price => `$${Number(price).toLocaleString('en-US')}`;
 
