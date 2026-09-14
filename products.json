@@ -11,7 +11,7 @@
   },
   {
     "name": "Neel embroidered vest",
-    "price": 3490,
+    "price": 63.99,
     "category": "Men's festive vest",
     "label": "New",
     "image": "/assets/royal-blue-vest.png",
@@ -21,7 +21,7 @@
   },
   {
     "name": "Meher mirror-work lehenga set",
-    "price": 5490,
+    "price": 47.99,
     "category": "Lehenga set",
     "label": "New",
     "image": "/assets/maroon-lehenga.png",
@@ -31,7 +31,7 @@
   },
   {
     "name": "Noor contrast lehenga set",
-    "price": 6290,
+    "price": 36.99,
     "category": "Lehenga set",
     "label": "Best seller",
     "image": "/assets/black-red-lehenga.png",
@@ -41,7 +41,7 @@
   },
   {
     "name": "Rani black-and-gold lehenga",
-    "price": 5990,
+    "price": 58.99,
     "category": "Lehenga set",
     "label": "New",
     "image": "/assets/black-gold-lehenga.png",
@@ -51,7 +51,7 @@
   },
   {
     "name": "Neel mustard tassel lehenga",
-    "price": 5790,
+    "price": 49.99,
     "category": "Lehenga set",
     "label": "New",
     "image": "/assets/neel-mustard-lehenga.png",
@@ -61,7 +61,7 @@
   },
   {
     "name": "party lehenga with real mirrors",
-    "price": 5786.99,
+    "price": 59.99,
     "category": "Women",
     "image": "/assets/whatsapp-image-2026-09-13-at-85224-am-1.jpeg",
     "alt": "women ethnic",
@@ -70,7 +70,7 @@
   },
   {
     "name": "chaniya choli ",
-    "price": 6000,
+    "price": 5,
     "category": "women",
     "image": "/assets/whatsapp-image-2026-09-13-at-85224-am.jpeg",
     "alt": "ethnic wear",
