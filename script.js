@@ -22,7 +22,7 @@ const zelleProductName = document.querySelector('#zelle-product-name');
 const menuButton = document.querySelector('.menu');
 const siteNav = document.querySelector('#site-nav');
 let opener;
-let bag = JSON.parse(localStorage.getItem('dress-your-curve-bag') || '[]');
+let bag = JSON.parse(localStorage.getItem('sakhi-mohini-bag') || '[]');
 
 menuButton?.addEventListener('click', () => {
   const isOpen = document.body.classList.toggle('menu-open');
@@ -121,7 +121,7 @@ function openProduct(card) {
 }
 
 function saveBag() {
-  localStorage.setItem('dress-your-curve-bag', JSON.stringify(bag));
+  localStorage.setItem('sakhi-mohini-bag', JSON.stringify(bag));
   renderBag();
 }
 
@@ -205,7 +205,7 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
   selectPaymentMethod(method.dataset.payment);
 }));
 async function beginStripeCheckout() {
-  const checkoutApi = window.DRESS_YOUR_CURVE_CHECKOUT_API;
+  const checkoutApi = window.SAKHI_MOHINI_CHECKOUT_API;
   const productName = arguments[0] || opener?.dataset.productName;
 
   if (!checkoutApi || !productName) {
