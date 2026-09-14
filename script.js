@@ -8,11 +8,21 @@ const closeButton = document.querySelector('.modal-close');
 const productGrid = document.querySelector('.product-grid');
 const checkoutButton = document.querySelector('.checkout-button');
 const checkoutMessage = document.querySelector('.checkout-message');
+const addToBagButton = document.querySelector('.add-to-bag-button');
+const bagButton = document.querySelector('.bag');
+const bagCount = bagButton?.querySelector('b');
+const bagDrawer = document.querySelector('#bag-drawer');
+const bagItems = document.querySelector('.bag-items');
+const bagEmpty = document.querySelector('.bag-empty');
+const bagTotal = document.querySelector('.bag-total strong');
+const bagBackdrop = document.querySelector('.bag-backdrop');
+const bagClose = document.querySelector('.bag-close');
 const zellePanel = document.querySelector('.zelle-panel');
 const zelleProductName = document.querySelector('#zelle-product-name');
 const menuButton = document.querySelector('.menu');
 const siteNav = document.querySelector('#site-nav');
 let opener;
+let bag = JSON.parse(localStorage.getItem('dress-your-curve-bag') || '[]');
 
 menuButton?.addEventListener('click', () => {
   const isOpen = document.body.classList.toggle('menu-open');
@@ -110,6 +120,49 @@ function openProduct(card) {
   closeButton.focus();
 }
 
+function saveBag() {
+  localStorage.setItem('dress-your-curve-bag', JSON.stringify(bag));
+  renderBag();
+}
+
+function renderBag() {
+  const count = bag.reduce((sum, item) => sum + item.quantity, 0);
+  const total = bag.reduce((sum, item) => sum + (Number(item.price) * item.quantity), 0);
+  if (bagCount) bagCount.textContent = count;
+  if (bagItems) {
+    bagItems.replaceChildren(...bag.map(item => {
+      const row = document.createElement('div');
+      row.className = 'bag-item';
+      row.innerHTML = `<img src="${item.image}" alt=""><div><h3></h3><p>${formatPrice(item.price)} · Qty ${item.quantity}</p><button type="button" class="bag-item-checkout">Checkout</button></div><button type="button" class="bag-remove" aria-label="Remove ${item.name}">×</button>`;
+      row.querySelector('h3').textContent = item.name;
+      row.querySelector('.bag-remove').addEventListener('click', () => { bag = bag.filter(entry => entry.name !== item.name); saveBag(); });
+      row.querySelector('.bag-item-checkout').addEventListener('click', () => beginStripeCheckout(item.name));
+      return row;
+    }));
+  }
+  bagEmpty.hidden = count > 0;
+  document.querySelector('.bag-total').hidden = count === 0;
+  document.querySelector('.bag-help').hidden = count === 0;
+  bagTotal.textContent = formatPrice(total);
+}
+
+function openBag() {
+  renderBag();
+  bagDrawer.classList.add('open');
+  bagDrawer.setAttribute('aria-hidden', 'false');
+  bagBackdrop.hidden = false;
+  document.body.style.overflow = 'hidden';
+  bagClose.focus();
+}
+
+function closeBag() {
+  bagDrawer.classList.remove('open');
+  bagDrawer.setAttribute('aria-hidden', 'true');
+  bagBackdrop.hidden = true;
+  document.body.style.overflow = modal.classList.contains('open') ? 'hidden' : '';
+  bagButton?.focus();
+}
+
 function closeProduct() {
   modal.classList.remove('open');
   modal.setAttribute('aria-hidden', 'true');
@@ -153,8 +206,9 @@ document.querySelectorAll('.method').forEach(method => method.addEventListener('
 }));
 async function beginStripeCheckout() {
   const checkoutApi = window.DRESS_YOUR_CURVE_CHECKOUT_API;
+  const productName = arguments[0] || opener?.dataset.productName;
 
-  if (!checkoutApi || !opener?.dataset.productName) {
+  if (!checkoutApi || !productName) {
     checkoutMessage.textContent = 'Secure checkout is being connected. Please try again shortly.';
     return;
   }
@@ -166,7 +220,7 @@ async function beginStripeCheckout() {
     const response = await fetch(checkoutApi, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productName: opener.dataset.productName, quantity: 1 })
+      body: JSON.stringify({ productName, quantity: 1 })
     });
     const result = await response.json();
     if (!response.ok || !result.url) throw new Error(result.error || 'Checkout could not be started.');
@@ -189,6 +243,23 @@ document.querySelector('.checkout-button').addEventListener('click', () => {
     : 'Secure Stripe checkout is unavailable. Please try again shortly.';
 });
 
+addToBagButton.addEventListener('click', () => {
+  if (!opener) return;
+  const name = opener.dataset.productName;
+  const price = Number(opener.querySelector('p').textContent.replace(/[^0-9.]/g, ''));
+  const image = opener.querySelector('img');
+  const existing = bag.find(item => item.name === name);
+  if (existing) existing.quantity += 1;
+  else bag.push({ name, price, image: image.src, alt: image.alt, quantity: 1 });
+  saveBag();
+  closeProduct();
+  openBag();
+});
+
+bagButton?.addEventListener('click', openBag);
+bagClose?.addEventListener('click', closeBag);
+bagBackdrop?.addEventListener('click', closeBag);
+
 document.querySelector('.newsletter form').addEventListener('submit', event => {
   event.preventDefault();
   const button = event.currentTarget.querySelector('button');
@@ -196,3 +267,4 @@ document.querySelector('.newsletter form').addEventListener('submit', event => {
 });
 
 loadCatalog();
+renderBag();
