@@ -19,11 +19,17 @@ const bagBackdrop = document.querySelector('.bag-backdrop');
 const bagClose = document.querySelector('.bag-close');
 const zellePanel = document.querySelector('.zelle-panel');
 const zelleProductName = document.querySelector('#zelle-product-name');
+const shippingQuotePanel = document.querySelector('#shipping-quote');
+const shippingZipInput = document.querySelector('#shipping-zip');
+const shippingRatesButton = document.querySelector('#get-shipping-rates');
+const shippingStatus = document.querySelector('#shipping-status');
+const shippingOptions = document.querySelector('#shipping-options');
 const menuButton = document.querySelector('.menu');
 const siteNav = document.querySelector('#site-nav');
 let opener;
 let bag = JSON.parse(localStorage.getItem('sakhi-mohini-bag') || '[]');
 let catalogue = [];
+let selectedShippingQuote = null;
 
 menuButton?.addEventListener('click', () => {
   const isOpen = document.body.classList.toggle('menu-open');
@@ -122,8 +128,9 @@ function openProduct(card) {
   detailPrice.textContent = card.querySelector('p').textContent;
   detailDescription.textContent = card.dataset.description || 'A thoughtfully crafted occasionwear piece, designed for comfort, confidence and celebration.';
   zelleProductName.textContent = name;
-  selectPaymentMethod('stripe');
   opener = card;
+  resetShippingQuotes();
+  selectPaymentMethod('stripe');
   modal.classList.add('open');
   modal.setAttribute('aria-hidden', 'false');
   document.body.style.overflow = 'hidden';
@@ -146,7 +153,12 @@ function renderBag() {
       row.innerHTML = `<img src="${item.image}" alt=""><div><h3></h3><p>${formatPrice(item.price)} · Qty ${item.quantity}</p><button type="button" class="bag-item-checkout">Checkout</button></div><button type="button" class="bag-remove" aria-label="Remove ${item.name}">×</button>`;
       row.querySelector('h3').textContent = item.name;
       row.querySelector('.bag-remove').addEventListener('click', () => { bag = bag.filter(entry => entry.name !== item.name); saveBag(); });
-      row.querySelector('.bag-item-checkout').addEventListener('click', () => beginStripeCheckout(item.name));
+      row.querySelector('.bag-item-checkout').addEventListener('click', () => {
+        const card = [...productGrid.children].find(entry => entry.dataset.productName === item.name);
+        if (!card) return;
+        closeBag();
+        openProduct(card);
+      });
       return row;
     }));
   }
@@ -205,6 +217,7 @@ function selectPaymentMethod(payment) {
   document.querySelector(`.method[data-payment="${payment}"]`)?.classList.add('selected');
   const isZelle = payment === 'zelle';
   zellePanel.hidden = !isZelle;
+  shippingQuotePanel.hidden = isZelle;
   checkoutButton.hidden = isZelle;
   checkoutMessage.textContent = isZelle
     ? 'Use the QR code in your Zelle-enabled bank app. Payments are verified manually.'
@@ -214,12 +227,107 @@ function selectPaymentMethod(payment) {
 document.querySelectorAll('.method').forEach(method => method.addEventListener('click', () => {
   selectPaymentMethod(method.dataset.payment);
 }));
+
+function resetShippingQuotes() {
+  selectedShippingQuote = null;
+  shippingZipInput.value = '';
+  shippingOptions.replaceChildren();
+  shippingStatus.textContent = 'Enter a U.S. ZIP code to compare live USPS and UPS delivery options.';
+  checkoutButton.disabled = true;
+  checkoutButton.innerHTML = 'Choose delivery first <span>→</span>';
+}
+
+function showShippingOptions(rates) {
+  shippingOptions.replaceChildren(...rates.map((rate, index) => {
+    const option = document.createElement('button');
+    option.type = 'button';
+    option.className = 'shipping-option';
+    const radio = document.createElement('input');
+    radio.type = 'radio';
+    radio.name = 'shipping-option';
+    radio.checked = index === 0;
+    const copy = document.createElement('span');
+    const title = document.createElement('strong');
+    title.textContent = rate.title;
+    const delivery = document.createElement('small');
+    delivery.textContent = rate.estimatedDays ? `Estimated delivery: about ${rate.estimatedDays} day${rate.estimatedDays === 1 ? '' : 's'}` : 'Live carrier rate';
+    copy.append(title, delivery);
+    const amount = document.createElement('span');
+    amount.className = 'shipping-amount';
+    amount.textContent = formatPrice(rate.amount);
+    option.append(radio, copy, amount);
+    option.addEventListener('click', () => {
+      selectedShippingQuote = rate.quote;
+      shippingOptions.querySelectorAll('.shipping-option').forEach(entry => entry.classList.remove('selected'));
+      shippingOptions.querySelectorAll('input').forEach(entry => { entry.checked = false; });
+      option.classList.add('selected');
+      radio.checked = true;
+      checkoutButton.disabled = false;
+      checkoutButton.innerHTML = 'Secure checkout <span>→</span>';
+      shippingStatus.textContent = `${rate.title} selected. Your live delivery charge will be added at secure checkout.`;
+    });
+    if (index === 0) option.click();
+    return option;
+  }));
+}
+
+async function requestShippingRates() {
+  const checkoutApi = window.SAKHI_MOHINI_CHECKOUT_API;
+  const productName = opener?.dataset.productName;
+  const destinationZip = shippingZipInput.value.trim();
+  if (!/^\d{5}(?:-\d{4})?$/.test(destinationZip)) {
+    shippingStatus.textContent = 'Enter a valid 5-digit U.S. ZIP code.';
+    return;
+  }
+  if (!checkoutApi || !productName) {
+    shippingStatus.textContent = 'Live delivery options are being connected. Please try again shortly.';
+    return;
+  }
+  selectedShippingQuote = null;
+  shippingOptions.replaceChildren();
+  checkoutButton.disabled = true;
+  checkoutButton.innerHTML = 'Choose delivery first <span>→</span>';
+  shippingRatesButton.disabled = true;
+  shippingRatesButton.textContent = 'Checking…';
+  shippingStatus.textContent = 'Finding current USPS and UPS rates…';
+  try {
+    const response = await fetch(checkoutApi.replace(/\/create-checkout$/, '/shipping-rates'), {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ productName, quantity: 1, destinationZip })
+    });
+    const result = await response.json();
+    if (!response.ok || !Array.isArray(result.rates)) throw new Error(result.error || 'Live delivery options could not be loaded.');
+    showShippingOptions(result.rates);
+  } catch (error) {
+    shippingStatus.textContent = error.message || 'Live delivery options could not be loaded. Please try again.';
+  } finally {
+    shippingRatesButton.disabled = false;
+    shippingRatesButton.textContent = 'Show options';
+  }
+}
+
+shippingRatesButton.addEventListener('click', requestShippingRates);
+shippingZipInput.addEventListener('keydown', event => { if (event.key === 'Enter') { event.preventDefault(); requestShippingRates(); } });
+shippingZipInput.addEventListener('input', () => {
+  if (!selectedShippingQuote) return;
+  selectedShippingQuote = null;
+  shippingOptions.replaceChildren();
+  checkoutButton.disabled = true;
+  checkoutButton.innerHTML = 'Choose delivery first <span>→</span>';
+  shippingStatus.textContent = 'ZIP changed. Show delivery options again.';
+});
+
 async function beginStripeCheckout() {
   const checkoutApi = window.SAKHI_MOHINI_CHECKOUT_API;
   const productName = arguments[0] || opener?.dataset.productName;
 
   if (!checkoutApi || !productName) {
     checkoutMessage.textContent = 'Secure checkout is being connected. Please try again shortly.';
+    return;
+  }
+  if (!selectedShippingQuote) {
+    checkoutMessage.textContent = 'Choose a live delivery option before secure checkout.';
     return;
   }
 
@@ -230,7 +338,7 @@ async function beginStripeCheckout() {
     const response = await fetch(checkoutApi, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ productName, quantity: 1 })
+      body: JSON.stringify({ productName, quantity: 1, shippingQuote: selectedShippingQuote })
     });
     const result = await response.json();
     if (!response.ok || !result.url) throw new Error(result.error || 'Checkout could not be started.');
