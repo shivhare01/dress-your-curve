@@ -6,10 +6,11 @@ Once Pages CMS is connected, open `https://app.pagescms.org`, select the **sakhi
 
 1. Select **Add item**.
 2. Fill in the product name, price, category and description.
-3. Choose **Product photo**, then upload or select your image.
-4. Leave **Stripe Payment Link** blank until you set up Stripe.
-5. Turn on **Show this item on the website**.
-6. Save. Your website normally updates within a few minutes.
+3. Enter the **Packed shipping weight (oz)** after you weigh the folded garment in its shipping package. For example, 2 lb 8 oz is `40` oz. This is what lets us show accurate carrier prices.
+4. Choose **Product photo**, then upload or select your image.
+5. Leave **Stripe Payment Link** blank until you set up Stripe.
+6. Turn on **Show this item on the website**.
+7. Save. Your website normally updates within a few minutes.
 
 ## Change a price or hide an item
 

@@ -19,10 +19,14 @@ content:
         type: string
         required: true
       - name: price
-        label: Price (₹)
+        label: Price ($)
         type: number
         required: true
         description: Enter numbers only, for example 3290.
+      - name: shipping_weight_oz
+        label: Packed shipping weight (oz)
+        type: number
+        description: Weigh the item after it is folded and packed. This is used to show live USPS and UPS shipping prices at checkout.
       - name: category
         label: Category
         type: string
